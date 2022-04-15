@@ -1,13 +1,9 @@
-function plotfigure3
+function fig = main
 
 basePath = fileparts(fileparts(mfilename('fullpath')));
 addpath(genpath(basePath));
 
-fig = figure('color','w','units','centimeters');
-fig.Position(2) = fig.Position(2)-5;
-% fig.Position(3) = 8.5;
-fig.Position(3) = 8.9;
-fig.Position(4) = 9.25;
+fig = figureNB(8.5,9.25);
 figh = fig.Position(4);
 
 % Representative Traces 

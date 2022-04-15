@@ -1,5 +1,8 @@
-function [gam,a,b] = tempgetrecovery(folder,fig);
-	load(fullfile(folder,'recovery1ms.mat'));
+% function [gam,a,b] = tempgetrecovery(folder,fig);
+% 	load(fullfile(folder,'recovery1ms.mat'));
+	if(Voltage(1)==0)
+		Voltage = Voltage-60;
+	end
 
 	Epochs = double(Epochs);
 
@@ -30,29 +33,29 @@ function [gam,a,b] = tempgetrecovery(folder,fig);
 
 	    Y = Current(j,Epochs(4)-1e3:Epochs(4)+5e3);
 	    temp = Y-median(Y(1:1e3));
-	    idcs = setdiff(1:6e3,1e3:2e3);
-	    FT = fitlm(ty(idcs),temp(idcs));
-	    response = temp-ty*FT.Coefficients{2,1};
-	    response = response(1e3+1:end);
+	    % idcs = setdiff(1:6e3,1e3:2e3);
+	    % FT = fitlm(ty(idcs),temp(idcs));
+	    % response = temp-ty*FT.Coefficients{2,1};
+	    response = temp(1e3+1:end);
 
-	    FT = fitlm(PNy(1:50),response(1:50));
-	    A = FT.Coefficients{2,1};
-	    pnY0 = response(1:2001)-A*PNy;
-	    response(1:2001) = pnY0;
+	    % FT = fitlm(PNy(1:50),response(1:50));
+	    % A = FT.Coefficients{2,1};
+	    % pnY0 = response(1:2001)-A*PNy;
+	    % response(1:2001) = pnY0;
 
 	    C1(:,j) = response;
 
 	    inter = PN2(1:1e3+100*j+1);
 	    temp = Current(j,Epochs(5)-1e3:Epochs(6)+100*(j-1)+5e3);
-	    temp = temp-nanmedian(inter(1:1e3));
+	    temp = temp-nanmedian(temp(1:1e3));
 	    inter = inter-nanmedian(inter(1:1e3));
 	    temp(1:1e3+100*j+1) = temp(1:1e3+100*j+1)-inter;
 	    response = temp(100*(j-1)+1001+Epochs(6)-Epochs(5):end);
 
-	   	FT = fitlm(PNy(1:50),response(1:50));
-	    A = FT.Coefficients{2,1};
-	    pnY0 = response(1:2001)-A*PNy;
-	    response(1:2001) = pnY0;
+	   	% FT = fitlm(PNy(1:50),response(1:50));
+	    % A = FT.Coefficients{2,1};
+	    % pnY0 = response(1:2001)-A*PNy;
+	    % response(1:2001) = pnY0;
 
 	    C2(:,j) = response;
 
@@ -70,6 +73,29 @@ function [gam,a,b] = tempgetrecovery(folder,fig);
 
 	a = 1:size(Current,1);
 	b = post./pre;
+
+	fun = fittype('a+exp(b*(x0-x))');
+	figure;
+	plot(C2,'k'); hold on;
+	h=plot(1:size(C2,1),nan*(1:size(C2,1)),'r');
+
+	i = 100;
+	y = -C2(i,:)'; M=max(y);
+	idcs = find(isfinite(y(1:10)));
+	FT = fit(a(idcs)',1-y(idcs)/max(y),fun);
+	t0 = FT.x0-log(1-FT.a)/FT.b;
+
+	BL = zeros(size(C2,1),1);
+	B = [log(a(:)),ones(length(a),1)];
+	for i = 1:1500
+		y = -C2(i,:)'; M=max(y);
+		idcs = find(isfinite(y(1:10)));
+		FT = fit(a(idcs)',1-y(idcs)/max(y),fun);
+		h.YData(i) = M*(FT(t0)-1);
+		drawnow;
+	end
+
+
 
 	FT = FitBiExponential(a,b);
 	gam = (FT.gamma1*FT.A+FT.gamma2*(1-FT.A));
@@ -99,7 +125,7 @@ function [gam,a,b] = tempgetrecovery(folder,fig);
 			ylabel('post/pre');
 			xlabel('Inter-pulse interval (ms)');
 	end
-end
+% end
 function pnY = PNsubtract(PNx,Y)    
     FT = fitlm(PNy(1:50),rawResponse(1:50));
     A = FT.Coefficients{2,1};

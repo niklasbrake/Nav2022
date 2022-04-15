@@ -1,25 +1,30 @@
 function output = parametersensitivity
     basePath = fileparts(fileparts(fileparts(mfilename('fullpath'))));
     addpath(genpath(basePath));
+    warning('off','curvefit:prepareFittingData:removingNaNAndInf')
 
     defaultParams = getNav15params;
     [Q,OpenPositions,defaultP] = nav15_NB(defaultParams);
 
-    A = linspace(-2,1,10);%52);
-    B = linspace(-2,2,9);%51);
+    A = linspace(-1,1,51);
+    B = linspace(-1,1,51);
+    V_base = -130;
+    V_pulse = 0;
     for j = 1:length(B)
         for i = 1:length(A)
             P = defaultP;
             P.alpha_k = P.alpha_k*10^(A(i));
             P.gamma_k = P.gamma_k*10^(B(j));
+            P.gamma_ik = P.gamma_ik*10^(B(j));
+            P.gamma_4k = P.gamma_4k*10^(B(j));
             [Q,OpenPositions] = nav15_NB(struct2array(P));
-            simulation = simulateprotocols(Q,OpenPositions);
+            simulation = simulateprotocols(Q,OpenPositions,V_base);
             FT = fitboltzman(simulation.activation.V,simulation.activation.G);
             v50(i,j) = FT.v50;
-            I = simulation.activation.estimate(:,simulation.activation.V==0);
-            [~,t2p(i,j)] = max(abs(I));
+            idx = interp1(simulation.activation.V,1:length(simulation.activation.V),V_pulse,'nearest','extrap');
+            [~,t2p(i,j)] = max(abs(simulation.activation.estimate(:,idx)));
 
-            [~,~,temp] = simulatesingles(Q,OpenPositions);
+            [~,~,temp] = simulatesingles(Q,OpenPositions,V_pulse);
             t0(i,j) = nanmedian(temp);
         end
     end
@@ -33,12 +38,10 @@ function output = parametersensitivity
     output.t0 = t0*1e3;
     output.t2p = t2p*1e-2;
 end
-function [t,x,t0] = simulatesingles(Q,OpenPositions)
+function [t,x,t0] = simulatesingles(Q,OpenPositions,V)
 
     T_max = 80e-3; % 80 ms
     M = 1e3; % Number of channels
-
-    V = -35;
 
     N = length(Q(0));
     dX_base = Q(-130*1e-3); % Get transition matrix for V = -130 mV

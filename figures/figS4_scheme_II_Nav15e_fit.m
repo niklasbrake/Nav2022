@@ -1,10 +1,10 @@
-function plotfigureS2
+function fig = main
 
 	basePath = fileparts(fileparts(mfilename('fullpath')));
 	addpath(genpath(basePath));
 
 	load('fittingTemplate.mat');
-	load('Nav15parsNB_DIII_20211027.mat');
+	Params = getNav15params(2);
 	[Q,OpenPositions,P] = nav15_NB_wDIII(Params);
 
 	%%% Numerically integrate system with voltage protocols %%%
@@ -89,10 +89,7 @@ function plotfigureS2
 	WT.R = load(fullfile('Nav1.5e','20170418c2','recovery1ms.mat'));
 	WT.R2 = load(fullfile('Nav1.5e','20170418c2','recovery10ms.mat'));
 
-	fig = figure('Position',[950.2000  229.0000  560.0000  420.0000],'color','w');
-	fig.Units = 'centimeters';
-	fig.Position(3) = 8.9;
-	fig.Position(4) = 8.9;
+	fig = figureNB(8.5,8.5);
 
 	axes('Position',[0.03,3/4,0.3,0.23]);
 	V = mean(WT.A.Voltage(:,WT.A.Epochs(4):WT.A.Epochs(4)+500)');
@@ -167,7 +164,8 @@ function plotfigureS2
 	h1 = plot(template.Inactivation.Voltages,abs(I_I),'Marker','v','Color','b','LineWidth',1); drawnow; 
 	set(h1.NodeChildren(1),'LineWidth',0.75);
 	xlim([-130 30]); ylim([0,1]);
-	xlabel('Voltage(mV)'); set(gca,'FontSize',7); set(gca,'LineWidth',1);
+	xl = xlabel('Voltage(mV)'); set(gca,'FontSize',7); set(gca,'LineWidth',1);
+	xl.Position(2) = -0.18;
 	box off; set(gca,'TickDir','out');
 
 
@@ -178,7 +176,8 @@ function plotfigureS2
 	hold on;
 	h1 = plot(T_Steps,I_R,'Marker','v','Color','b'); drawnow;
 	set(gca,'XScale','log');xlim([1 150]);ylim([0,1]);
-	xlabel('Inter-pulse interval (ms)'); set(gca,'FontSize',7); set(gca,'LineWidth',1);
+	xl = xlabel('Inter-pulse interval (ms)'); set(gca,'FontSize',7); set(gca,'LineWidth',1);
+	xl.Position(2) = -0.18;
 	box off; set(gca,'TickDir','out');
 	set(gca,'xtick',[1,10,100]);
 

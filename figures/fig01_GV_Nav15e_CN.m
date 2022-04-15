@@ -1,11 +1,10 @@
-function plotfigure1
+function fig = main
 
 basePath = fileparts(fileparts(mfilename('fullpath')));
 addpath(genpath(basePath));
 
 
-fig = figure('units','centimeters','color','w');
-fig.Position = [0,0,11.4,6.5];
+fig = figureNB(11.4,6.5);
 fhy =fig.Position(4); 
 
 labelpanel = @(x,y,str) annotation('textbox', [x,y,0.05,0.05],'String',upper(str), 'LineStyle', ...
@@ -279,7 +278,7 @@ text(350,-0.95*mX,['0.3 nA'],'FontSize',6,'Rotation',90);
 	A = annotation('textbox',[0.13,0.6,0.02,0.02],...
 		'String','DIII','LineStyle','none','FontSize',7,'color',clrs(3,:), ...
 		'VerticalAlignment','middle','HorizontalAlignment','center');
-	A = annotation('textbox',[0.28,0.64,0.02,0.02],...
+	A = annotation('textbox',[0.28,0.615,0.02,0.02],...
 		'String','DIV','LineStyle','none','FontSize',7,'color',clrs(4,:), ...
 		'VerticalAlignment','middle','HorizontalAlignment','center');
 

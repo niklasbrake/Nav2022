@@ -1,10 +1,10 @@
-function [fitresult, gof] = fitSSIcruve(V,I,SP)
+function [fitresult, gof] = fitSSIcurve(V,I,SP)
 % [fitresult, gof] = FitBoltzman2(V,I,Vhalf,K0,Gmx) fits (V,I) with the function
 % 	i = 1/(Gmx*(1+exp((v-v50)/k)))
 % fitresult is ordered as [Gmx k v50]
 
 if(nargin<3)
-    SP = struct('v50',-50,'k',-10,'gmax',1);
+    SP = struct('v50',-50,'k',10,'gmax',1);
 end
 
 [xData, yData] = prepareCurveData( V, I );
@@ -19,8 +19,8 @@ opts.MaxFunEvals = 600;
 opts.MaxIter = 400;
 opts.StartPoint = [SP.gmax SP.k SP.v50];
 opts.TolFun = 1e-6;
-opts.Lower = [-1e5 -20 -200];
-opts.Upper = [0 20 40];
+opts.Lower = [0 -20 -200];
+opts.Upper = [1e5 20 40];
 
 % Fit model to data.
 [fitresult, gof] = fit( xData, yData, ft, opts );

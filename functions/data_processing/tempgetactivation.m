@@ -28,8 +28,12 @@ function [V_return,newPost_return,C1_return,v50,erev,lag_return] = tempgetactiva
 	    response = Current(j,Epochs(4)-1e3:Epochs(4)+5e3);
 	    C1(:,j) = PNsubtract(PN,response);
 
-	    [~,i0] =  max(abs(C1(60:end,j)));
-		Cfit(:,j) = fitHH(C1(35:end,j),sign(C1(59+i0,j)));
+	    [m,i0] =  max(abs(C1(60:end,j)));
+	    if(m<500)
+			Cfit(:,j) = fitHH(C1(35:end,j),sign(C1(59+i0,j)));
+		else
+			Cfit(:,j) = [zeros(34,1);C1(35:end,j)];
+		end
 
 		[~,I] = max(abs(Cfit(:,j)));
 		post(j) = Cfit(I,j);
@@ -38,10 +42,18 @@ function [V_return,newPost_return,C1_return,v50,erev,lag_return] = tempgetactiva
 		lag(j) = I*1e-2;
 	end
 
-	FT0 = FitBoltzman(V(or(V<45,V>70)),post(or(V<45,V>70)),-15,10,60,50);
-	erev = FT0.ERev;
-	newPost = FT0.Gmx*post./(V-FT0.ERev);
-	FT = FitBoltzmanCurve(V(V<35),newPost(V<35),1,-10,-15);
+	% erev = getErev(V,post);
+	erev = erev_fitter(V,post);
+	% FT0 = fitGVcurve(V(or(V<45,V>90)),post(or(V<45,V>90)));
+	% erev = FT0.ERev;
+	% erev = 60;
+
+	dif = V-erev;
+	dif(abs(dif)<0.1) = 0.1;
+	newPost = post./dif;
+	newPost = newPost./max(newPost(V<15));
+	v50 = interp1(newPost,V,0.5);
+	FT = fitSSIcurve(V(V<40),newPost(V<40),struct('v50',v50,'k',-10,'gmax',1));
 	v50 = coeffvalues(FT);
 
 
@@ -70,7 +82,7 @@ function [V_return,newPost_return,C1_return,v50,erev,lag_return] = tempgetactiva
 	% m = min(37,size(C1,2));
 	m = 37;
 	V_return = V(1:m);
-	newPost_return = newPost(1:m);
+	newPost_return = newPost(1:m)*FT.Gmx;
 	C1_return = C1(:,1:m);
 	lag_return = lag(1:m);
 

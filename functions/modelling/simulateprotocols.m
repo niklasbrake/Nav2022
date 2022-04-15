@@ -1,11 +1,15 @@
-function output = simulateprotocols(Q,OpenPositions);
+function output = simulateprotocols(Q,OpenPositions,v_base);
+
+    if(nargin<3)
+        v_base = -100;
+    end
 
     %%% Numerically integrate system with voltage protocols %%%
     % Part 0. Initialize constants
         T_max = 500; % 500 frames with frame time of 0.1 microseconds, thus 5 miliseconds.
         N = length(Q(0));
     % Part 0. Initial baseline at -100 mV 
-        dX_base = Q(-100*1e-3); % Get transition matrix for V = -100 mV
+        dX_base = Q(v_base*1e-3); % Get transition matrix for V = -100 mV
         temp = expsolver(dX_base,[1:100]*1e-3,[1 zeros(1,N-1)])'; % Integrate for 100 ms
         Xinit = temp(end,:)'; % Take final "steady-state" conformation of system
     % Part 1. Initilize constants for inactivaiton protocol
@@ -23,7 +27,7 @@ function output = simulateprotocols(Q,OpenPositions);
             X1(:,:,idx) = expsolver(dX_Pulse,[1:T_max]*1e-5,X00)'; % Integrate test-pulse, for 500 ms.
         end
     % Part 2. Initilize constants for activaiton protocol
-        V_A = [-130:5:55]; % Get voltage steps used in the activation experiments from template
+        V_A = [-130:5:60]; % Get voltage steps used in the activation experiments from template
         VSteps = length(V_A); % Total number of voltage steps
     % Part 2. Activation Protocol
         X2 = zeros(T_max,N,VSteps); % Allocates memory
@@ -50,9 +54,9 @@ function output = simulateprotocols(Q,OpenPositions);
         X2 = real(X2);
         X3 = real(X3);
     % Part 1. Max Current calculations
-        inActEst = squeeze(sum(X1(1:500,OpenPositions,:),2)).*(-10-60); % Take the computed conductance x densitiy in "open states") and scale w.r.t reversal potential
-        actEst = squeeze(sum(X2(1:500,OpenPositions,:),2)).*(V_A-60); % Repeat for activation protocol
-        recovEst = squeeze(sum(X3(1:500,OpenPositions,:),2)); % Repeat for recovery protol (don't scale because we're looking at fraction recovery and always pulse to same voltage anyways)
+        inActEst = squeeze(sum(X1(1:T_max,OpenPositions,:),2)).*(-10-60); % Take the computed conductance x densitiy in "open states") and scale w.r.t reversal potential
+        actEst = squeeze(sum(X2(1:T_max,OpenPositions,:),2)).*(V_A-60); % Repeat for activation protocol
+        recovEst = squeeze(sum(X3(1:T_max,OpenPositions,:),2)); % Repeat for recovery protol (don't scale because we're looking at fraction recovery and always pulse to same voltage anyways)
         GMax = max(abs(actEst(:))); % Scale by peak conductance to get in range [0,1]
         actEst = actEst/GMax;
         GMax = max(abs(inActEst(:)));
@@ -90,3 +94,4 @@ function output = simulateprotocols(Q,OpenPositions);
         output.recovery.t = TSteps(:);
         output.recovery.I = I_R(:);
         output.recovery.estimate = recovEst;
+        output.recovery.pre = actEst(:,25)/(V_A(25)-60);

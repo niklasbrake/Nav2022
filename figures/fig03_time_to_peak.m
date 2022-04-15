@@ -1,13 +1,9 @@
-function plotfigure2
+function fig = main
 
 basePath = fileparts(fileparts(mfilename('fullpath')));
 addpath(genpath(basePath));
 
-fig = figure('Units','centimeters','color','w');
-fig.Position(3) = 12;
-fig.Position(4) = 8.5;
-% fig.Position(3) = 11.4;
-% fig.Position(4) = 8;
+fig = figureNB(12,8.5);
 
 plotsensitivityanalysis;
 plotmodelpredictions;
@@ -25,7 +21,7 @@ function plotmodelpredictions
 	clrs=clrs([2:4,6],:);
 	clrs(4,2)=0.3;
 
-	pars15 = getNav15params;
+	pars15 = getNav15params(1);
 	Fs = 1e-6;
 	% Fs = 1e-6;
 	[actEst1,V,I_A] = simActivation(pars15,Fs);
@@ -56,7 +52,7 @@ function plotmodelpredictions
 		ylim([min(actEst1(:)),max(actEst1(:))]);
 
 
-	pars15(23) = pars15(23)*5;
+	pars15(19:2:23) = pars15(19:2:23)*5;
 	% pars15(5) = pars15(5)*5;
 	[actEst2,V,I_A] = simActivation(pars15,Fs);
 	axes(ax1);
@@ -77,7 +73,7 @@ function plotmodelpredictions
 		line([3,4]*1e-3/Fs,[0.6 0.6]*mX,'LineWidth',1,'Color','k')
 		text(3.5*1e-3/Fs,0.7*mX,'1 ms','FontSize',6,'HorizontalAlignment','center','margin',0.1);
 
-	pars15(23) = pars15(23)/20;
+	pars15(19:2:23) = pars15(19:2:23)/20;
 	% pars15(5) = pars15(5)/20;
 	[actEst3,V,I_A] = simActivation(pars15,Fs);
 	axes(ax1);
@@ -234,9 +230,9 @@ function plotdata
 
 function plotsensitivityanalysis
 
-	output = parametersensitivity;
-	save('C:\Users\brake\Documents\GitHub\Nav2022\data\modelling\2_parameter_sensitivity_analysis.mat','output')
-	% load('2_parameter_sensitivity_analysis.mat');
+	% output = parametersensitivity;
+	% save('C:\Users\brake\Documents\GitHub\Nav2022\data\modelling\2_parameter_sensitivity_analysis.mat','output')
+	load('C:\Users\brake\Documents\GitHub\Nav2022\data\modelling\2_parameter_sensitivity_analysis.mat');
 
 	defaultIdx1 = find(output.parameter1.foldChange==0);
 	defaultIdx2 = find(output.parameter2.foldChange==0);

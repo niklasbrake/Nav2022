@@ -1,8 +1,8 @@
 function main(minusC1)
 
-fig = figureNB; 
-fig.Position(3:4) = 1.75*[3.55,2.7];
-axes('Position',[0,0,1,1]);
+% fig = figureNB; 
+% fig.Position(3:4) = 1.75*[3.8,2.7];
+% axes('Position',[0,0,1,1]);
 
 % plotCNdiagram;
 plotWTdiagram;
@@ -81,27 +81,28 @@ function plotWTdiagram
 
 	set(get(gca,'XAxis'),'Visible','off')
 	set(get(gca,'YAxis'),'Visible','off')
-	xlim([0.7,4.25]);
+	xlim([0.65,4.4]);
 	ylim([0.5 3.2]);
+	set(gca,'DataAspectRatio',[1,1,1]);
 
 	hold on;
 
 	horizontalLines(X1,X3,'\alpha_3','\beta_3');
-	horizontalLines(X3,X6,'\alpha','\beta');
+	horizontalLines(X3,X6,'\alpha_2','\beta_2');
 	horizontalLines(X6,X9,'\gamma','\delta');
 
 	horizontalLines(X2,X4,'\alpha_3x_\alpha','\beta_3x_\beta');
-	horizontalLines(X4,X7,'\alphax_\alpha','\betax_\beta');
+	horizontalLines(X4,X7,'\alpha_2x_\alpha','\beta_2x_\beta');
 	horizontalLines(X7,X10,'\gamma_4','\delta_4');
 
-	horizontalLines(X5,X8,'\alphax_\alphay_\alpha','\betax_\betay_\beta');
+	horizontalLines(X5,X8,'\alpha_2x_\alphay_\alpha','\beta_2x_\betay_\beta');
 	horizontalLines(X8,X11,'\gamma_i','\delta_i');
 
 
 	verticalLines(X2,X1,'\beta_4','\alpha_4');
 	verticalLines(X4,X3,'\beta_4y_\alpha','\alpha_4x_\alpha');
 	verticalLines(X7,X6,'\beta_4y_\alpha^2','\alpha_4x_\alpha^2');
-	verticalLines(X10,X9,'\beta_O','\alpha_O');
+	verticalLines(X10,X9,'\beta_{4O}','\alpha_{4O}');
 
 
 	verticalLines(X5,X4,'r','i');

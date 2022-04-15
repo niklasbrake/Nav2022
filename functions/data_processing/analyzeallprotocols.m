@@ -5,7 +5,7 @@ function analyzeallprotocols(folder,fig)
         fig = [];
     end
 
-    % analyze_activation(folder,fig);
+    analyze_activation(folder,fig);
     % analyze_inactivation(folder,fig);
     % analyze_recovery(folder,fig);
     generate_table(folder);
@@ -108,16 +108,17 @@ function analyze_recovery(folder,fig)
     idcs = idcs(3:end);
     F = F(idcs);
     goodIdcs = [];
+    gam = []; I = [];
     for i = 1:length(F)
         if(~exist(fullfile(folder,F(i).name,'recovery1ms.mat')))
             continue;
         end
-        try
+        % try
             [gam(i),t,I(:,i)] = tempgetrecovery(fullfile(folder,F(i).name),fig);
             goodIdcs(end+1) = i;
-        catch
-            warning(['Error in file ' fullfile(F(i).name,'Recovery1ms.mat')]);
-        end
+        % catch
+        %     warning(['Error in file ' fullfile(F(i).name,'Recovery1ms.mat')]);
+        % end
         drawnow;
     end
     gam = gam(goodIdcs);

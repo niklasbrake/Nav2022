@@ -1,4 +1,4 @@
-function [CSI,DIV,t_inact,t_open] = computemodelCSI(params,modelfunction,V)
+function [t_inact,t_open,t_DIV,t_DI_III] = computemodelCSI(params,modelfunction,V)
 
     [Q,OpenPositions,P] = modelfunction(params);
     [t,x] = simulatesingles(Q,OpenPositions,V);
@@ -7,31 +7,29 @@ function [CSI,DIV,t_inact,t_open] = computemodelCSI(params,modelfunction,V)
     for j = 1:m
         temp = find(sum(x(:,j)==[OpenPositions(1)/2,OpenPositions],2));
         if(isempty(temp))
-            t_open(j) = 80e-3;
+            t_open(j) = Inf;
         else
             t_open(j) = t(temp(1),j);
         end
         temp = find(sum(x(:,j)<=OpenPositions(1)/2,2));
         if(isempty(temp))
-            t_inact(j) = 80e-3;
+            t_inact(j) = Inf;
         else
             t_inact(j) = t(temp(1),j);
         end   
         temp = find(sum(x(:,j)<=OpenPositions(1),2));
         if(isempty(temp))
-            t_DIV(j) = 80e-3;
+            t_DIV(j) = Inf;
         else
             t_DIV(j) = t(temp(1),j);
         end
-        temp = find(sum(x(:,j)==OpenPositions-1,2));
+        temp = find(sum(x(:,j)==[5,10,15],2));
         if(isempty(temp))
-            t_DI(j) = 80e-3;
+            t_DI_III(j) = Inf;
         else
-            t_DI(j) = t(temp(1),j);
+            t_DI_III(j) = t(temp(1),j);
         end
     end
-    CSI = sum(t_inact<t_open)/m;
-    DIV = sum(t_DIV<t_DI)/m;
 end
 function [t,x,t0] = simulatesingles(Q,OpenPositions,V)
 

@@ -1,4 +1,4 @@
-function plotfigure4
+function fig = main
 
 warning('off','curvefit:prepareFittingData:removingNaNAndInf')
 basePath = fileparts(fileparts(mfilename('fullpath')));
@@ -17,11 +17,7 @@ baseline(4) = 2.0698;
 
 WT = load('ephys_SummaryData.mat');
 
-fig = figure('Units','Centimeters','Color','w');
-% fig.Position(3) = 8.5;
-fig.Position(3) = 8.9;
-fig.Position(4) = 15.25;
-fig.Position(2) = fig.Position(2)-4;
+fig = figureNB(8.5,15.25);
 figh = fig.Position(4);
 
 
@@ -41,7 +37,7 @@ for i = 1:4
 	EB(2).MarkerFaceColor = EB(2).Color;
 	plot(vF(1):vF(end),FB(vF(1):vF(end)),'Color',EB(2).Color);
 	FB = fitboltzman(vF,F(:,i),struct('v50',-50,'k',-5));
-	EB(1) = errorbar(vF,F(:,i),sF(:,i),'LineWidth',0.25,'LineStyle','none','Marker','^','MarkerSize',3,'color',[0,1,0]); hold on;
+	EB(1) = errorbar(vF,F(:,i),sF(:,i),'LineWidth',0.25,'LineStyle','none','Marker','^','MarkerSize',3,'color',[0,0.9,0]); hold on;
 	EB(1).MarkerFaceColor = EB(1).Color;
 	plot(vF(1):vF(end),FB(vF(1):vF(end)),'Color',EB(1).Color);
 	FB = fitboltzman(WT.Nav15e.inactivation(3:end,1),WT.Nav15e.inactivation(3:end,2),struct('v50',-100,'k',5));

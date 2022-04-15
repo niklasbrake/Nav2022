@@ -31,12 +31,12 @@ for j = 1:size(Current,1)
 	lag(j) = I;
 end
 
-inact = -post./min(post);
+inact = post./min(post);
 
-FT = FitBoltzman2(V(V>-135),inact(V>-135),-60,10,-1);
+FT = fitSSIcurve(V(V>-135),inact(V>-135));
 P = coeffvalues(FT);
 inact = 1-inact*FT.Gmx;
-FT2 = FitBoltzmanCurve2(V,inact,FT.v50,-10);
+FT2 = fitboltzman(V,inact,struct('v50',-100,'k',-10));
 
 idcs = zeros(size(C1));
 for i = 1:size(C1,2)
@@ -54,11 +54,11 @@ for i = 1:size(C1,2)
     Ipre(i) = nansum(IO);
 end
 Ipre = Ipre./max(abs(Ipre));
-FTosi = FitBoltzman(V(V<40),Ipre(V<40),-10,-10,60,1);
+FTosi = fitGVcurve(V(V<40),Ipre(V<40));
 Gpre = FTosi.Gmx*Ipre./(V-FTosi.ERev);
 
 t = -160:0.1:60;
-FT3 = FitBoltzmanCurve2(V(V<40),Gpre(V<40),-50,-10);
+FT3 = fitboltzman(V(V<40),Gpre(V<40));
 CSI0 = FT2(t)-FT3(t);
 CSI = sum(0.1*CSI0);
 
