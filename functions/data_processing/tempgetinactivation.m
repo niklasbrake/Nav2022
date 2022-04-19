@@ -33,10 +33,11 @@ end
 
 inact = post./min(post);
 
-FT = fitSSIcurve(V(V>-135),inact(V>-135));
+FT = fitSSIcurve(V,inact);
 P = coeffvalues(FT);
 inact = 1-inact*FT.Gmx;
-FT2 = fitboltzman(V,inact,struct('v50',-100,'k',-10));
+v50 = interp1(inact+randn(size(inact))*1e-7,V,0.5);
+FT2 = fitboltzman(V,inact,struct('v50',v50,'k',-10));
 
 idcs = zeros(size(C1));
 for i = 1:size(C1,2)

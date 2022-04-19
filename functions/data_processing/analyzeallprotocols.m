@@ -5,8 +5,8 @@ function analyzeallprotocols(folder,fig)
         fig = [];
     end
 
-    analyze_activation(folder,fig);
-    % analyze_inactivation(folder,fig);
+    % analyze_activation(folder,fig);
+    analyze_inactivation(folder,fig);
     % analyze_recovery(folder,fig);
     generate_table(folder);
 
@@ -73,8 +73,7 @@ function analyze_inactivation(folder,fig)
     params = params(:,goodIdcs);
     I = I(:,:,goodIdcs);
     post = post(:,goodIdcs);
-    Imax = min(post);
-    post = -post.*params(1,:)./min(post);
+    Imax = squeeze(min(min(I)));
     cell_id = {F(goodIdcs).name};
     cap = cap(goodIdcs);
     rSeries = rSeries(goodIdcs);

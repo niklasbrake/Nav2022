@@ -1,6 +1,6 @@
 function fig = main
 
-load('C:\Users\brake\Documents\GitHub\Nav2022\data\modelling\latency_time_to_peak.mat')
+load('latency_time_to_peak.mat')
 
 fig = figureNB(4,4);
 h = scatter(output.t0(:),output.t2p(:),5,'filled');

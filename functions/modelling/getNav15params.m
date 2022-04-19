@@ -3,9 +3,9 @@ function Params = getNav15params(scheme)
         error('Please input valid scheme number.');
     end
     if(scheme == 1)
-        load('Nav15ParsNB_20210507_1233.mat');
+        load('SchemeIParameters_Nav15e_20210507_1233.mat');
     elseif(scheme == 2)
-        load('Nav15parsNB_DIII_20220330.mat');
+        load('SchemeIIParameters_Nav15e_20220330_1147.mat');
     else
         error('Please input valid scheme number.');
     end

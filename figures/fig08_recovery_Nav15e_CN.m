@@ -1,13 +1,17 @@
 function fig = main
+
+    basePath = fileparts(fileparts(mfilename('fullpath')));
+    addpath(genpath(basePath));
+
     clrs = getColours;
     fig = figureNB(8.5,12);
     figh = fig.Position(4);
 
-    ex(1) = load(fullfile('E:\Research_Projects\003_Nav15\Experiments\Niklas','Nav1.5e','20211111c5','recovery1ms.mat'));
-    ex(2) = load(fullfile('C:\Users\brake\Documents\GitHub\Nav-2020-private\figures\dependencies\data','Nav1.5e-D1','20180307c1','recovery1ms.mat'));
-    ex(3) = load(fullfile('C:\Users\brake\Documents\GitHub\Nav-2020-private\figures\dependencies\data','Nav1.5e-D2','20180316c2','recovery1ms.mat'));
-    ex(4) = load(fullfile('C:\Users\brake\Documents\GitHub\Nav-2020-private\figures\dependencies\data','Nav1.5e-D3','20180712c1','recovery1ms.mat'));
-    ex(5) = load(fullfile('C:\Users\brake\Documents\GitHub\Nav-2020-private\figures\dependencies\data','Nav1.5e-D4','20190309c1','recovery1ms.mat'));
+    ex(1) = load(fullfile('Nav1.5e','20211111c5','recovery1ms.mat'));
+    ex(2) = load(fullfile('Nav1.5e-D1','20180307c1','recovery1ms.mat'));
+    ex(3) = load(fullfile('Nav1.5e-D2','20180316c2','recovery1ms.mat'));
+    ex(4) = load(fullfile('Nav1.5e-D3','20180712c1','recovery1ms.mat'));
+    ex(5) = load(fullfile('Nav1.5e-D4','20190309c1','recovery1ms.mat'));
 
 
     labelpanel(0,0.95,'A')
@@ -59,11 +63,11 @@ function fig = main
         end
     end
 
-    load('E:\Research_Projects\003_Nav15\Experiments\Niklas\Nav1.5e\recovery_analyzed.mat');    WT = T;
-    load('E:\Research_Projects\003_Nav15\Experiments\Data\Nav1.5e-D1\recovery_analyzed.mat');   D1 = T;
-    load('E:\Research_Projects\003_Nav15\Experiments\Data\Nav1.5e-D2\recovery_analyzed.mat');   D2 = T;
-    load('E:\Research_Projects\003_Nav15\Experiments\Data\Nav1.5e-D3\recovery_analyzed.mat');   D3 = T;
-    load('E:\Research_Projects\003_Nav15\Experiments\Data\Nav1.5e-D4\recovery_analyzed.mat');   D4 = T;
+    load('Nav1.5e\recovery_analyzed_-130mV.mat');    WT = T;
+    load('Nav1.5e-D1\recovery_analyzed.mat');   D1 = T;
+    load('Nav1.5e-D2\recovery_analyzed.mat');   D2 = T;
+    load('Nav1.5e-D3\recovery_analyzed.mat');   D3 = T;
+    load('Nav1.5e-D4\recovery_analyzed.mat');   D4 = T;
 
     t = 1:25;
     I_WT = cat(2,WT.I_recovery{:});
@@ -81,31 +85,21 @@ function fig = main
 
     axes('Position',[0.69,0.9,0.15,0.08]);
         plot(t(:)+0.3*randn(size(I_WT)),I_WT,'.','color',clrs(1,:),'MarkerSize',2); hold on;
-        % plot(t(:),FT_WT(t(:)),'color',clrs(1,:),'LineWidth',1)
         gcaformat; ylim([0,1.1]); yticks([0,1]); xlim([0,25]);
     axes('Position',[0.58,0.77,0.15,0.08]);
         plot(t(:)+0.3*randn(size(I_D1)),I_D1,'.','color',clrs(2,:),'MarkerSize',2); hold on;
-        % plot(t(:),FT_WT(t(:)),'color',clrs(1,:),'LineStyle','--')
-        % plot(t(:),FT_D1(t(:)),'color',clrs(2,:),'LineWidth',1)
         gcaformat; ylim([0,1.1]); yticks([0,1]); xlim([0,25]);
          set(get(gca,'xaxis'),'visible','off'); 
          ylabel('Fraction recovered (I_{post}/I_{pre})')
     axes('Position',[0.8,0.77,0.15,0.08]);
         plot(t(:)+0.3*randn(size(I_D2)),I_D2,'.','color',clrs(3,:),'MarkerSize',2); hold on;
-        % plot(t(:),FT_WT(t(:)),'color',clrs(1,:),'LineStyle','--')
-        % plot(t(:),FT_D2(t(:)),'color',clrs(3,:),'LineWidth',1)
         gcaformat; ylim([0,1.1]); yticks([0,1]); xlim([0,25]);
          set(get(gca,'xaxis'),'visible','off'); 
     axes('Position',[0.58,0.66,0.15,0.08]);
         plot(t(:)+0.3*randn(size(I_D3)),I_D3,'.','color',clrs(4,:),'MarkerSize',2); hold on;
-        % plot(t(:),FT_WT(t(:)),'color',clrs(1,:),'LineStyle','--')
-        % plot(t(:),FT_D3(t(:)),'color',clrs(4,:),'LineWidth',1)
         gcaformat; ylim([0,1.1]); yticks([0,1]); xlim([0,25]);
-         % set(get(gca,'xaxis'),'visible','off'); 
     axes('Position',[0.8,0.66,0.15,0.08]);
         plot(t(:)+0.3*randn(size(I_D4)),I_D4,'.','color',clrs(5,:),'MarkerSize',2); hold on;
-        % plot(t(:),FT_WT(t(:)),'color',clrs(1,:),'LineStyle','--')
-        % plot(t(:),FT_D4(t(:)),'color',clrs(5,:),'LineWidth',1)
         gcaformat; ylim([0,1.1]); yticks([0,1]); xlim([0,25]);
         xl = xlabel('Inter-pulse interval (ms)');
         xl.Position = [-6.6,-0.55,-1];
@@ -126,11 +120,11 @@ function fig = main
         xax.TickLabelRotation=-30;
 
 
-    load('E:\Research_Projects\003_Nav15\Experiments\Niklas\Nav1.5e\inactivation_analyzed.mat');    WT = combinetables(WT,T); WT.SSI130 = getSSI130(WT);
-    load('E:\Research_Projects\003_Nav15\Experiments\Data\Nav1.5e-D1\inactivation_analyzed.mat');   D1 = combinetables(D1,T); D1.SSI130 = getSSI130(D1);
-    load('E:\Research_Projects\003_Nav15\Experiments\Data\Nav1.5e-D2\inactivation_analyzed.mat');   D2 = combinetables(D2,T); D2.SSI130 = getSSI130(D2);
-    load('E:\Research_Projects\003_Nav15\Experiments\Data\Nav1.5e-D3\inactivation_analyzed.mat');   D3 = combinetables(D3,T); D3.SSI130 = getSSI130(D3);
-    load('E:\Research_Projects\003_Nav15\Experiments\Data\Nav1.5e-D4\inactivation_analyzed.mat');   D4 = combinetables(D4,T); D4.SSI130 = getSSI130(D4);
+    load('Nav1.5e\inactivation_analyzed.mat');      WT = combinetables(WT,T); WT.SSI130 = getSSI130(WT);
+    load('Nav1.5e-D1\inactivation_analyzed.mat');   D1 = combinetables(D1,T); D1.SSI130 = getSSI130(D1);
+    load('Nav1.5e-D2\inactivation_analyzed.mat');   D2 = combinetables(D2,T); D2.SSI130 = getSSI130(D2);
+    load('Nav1.5e-D3\inactivation_analyzed.mat');   D3 = combinetables(D3,T); D3.SSI130 = getSSI130(D3);
+    load('Nav1.5e-D4\inactivation_analyzed.mat');   D4 = combinetables(D4,T); D4.SSI130 = getSSI130(D4);
 
     ax = axes('Position',[0.58 0.046 0.35 0.22]);
     plot(WT.recovery_rate,WT.SSI130,'.','MarkerSize',15,'color',clrs(1,:)); hold on;
@@ -154,10 +148,6 @@ function plotRecoveryData(data,ax,clr)
     X = data.Current(:,data.Epochs(5)-400:data.Epochs(5)+5000)';
     pre = mean(data.Current(:,data.Epochs(4)-2500:data.Epochs(4)+1200));
     [pre,post] = removeCapactiveTransient(data.Current,data.Epochs);
-    % pre(1:30) = nan;
-    % for i = 2:size(X,2)
-        % X(500:501+(i-1)*100+35,i) = nan;
-    % end
     mX = max(abs(pre));
     plot((-1e3:1200)/200-11,pre/mX,'color',clr,'LineWidth',0.5); hold on;
     for i = 12:-1:1
@@ -181,8 +171,7 @@ function SSI130 = getSSI130(T)
     for i = 1:size(T,1)
         I = T.Ipost_SSI{i};
         V = T.V_SSI{i};
-        FT = fitSSIcurve(V(V>-150),I(V>-150));
-        SSI130(i) = interp1(V,I*FT.Gmx,-130);
+        SSI130(i) = interp1(V,I,-130);
     end
 end
 

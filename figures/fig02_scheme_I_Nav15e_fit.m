@@ -3,13 +3,12 @@ function fig = main
 	basePath = fileparts(fileparts(mfilename('fullpath')));
 	addpath(genpath(basePath));
 
-	load('fittingTemplate.mat');
 	pars15 = getNav15params(1);
-	[Q,OpenPositions,P] = nav15_NB(pars15);
+	[Q,OpenPositions,P] = schemeI(pars15);
 	modeloutput = simulateprotocols(Q,OpenPositions);
 
 	WT.A = load(fullfile('Nav1.5e','20170418c2','activation.mat'));
-	WT.I = load(fullfile('Nav1.5e','20170418c3','inactivation.mat'));
+	WT.I = load(fullfile('Nav1.5e','20170428c4','inactivation.mat'));
 	WT.R = load(fullfile('Nav1.5e','20170418c2','recovery1ms.mat'));
 	WT.R2 = load(fullfile('Nav1.5e','20170418c2','recovery10ms.mat'));
 
@@ -21,7 +20,7 @@ function fig = main
     h = 0.4;
     w = xr/yr*h*R;
 	axes('Position',[0.5-w/2,0.61,w,h]); 
-	buildmodeldiagram(false);
+	drawschemeI(false);
 
 
 	%  Plot data activation currents
@@ -71,8 +70,8 @@ function fig = main
 	axes('Position',[0.28,0.45,0.2,0.15]);
 	plot(modeloutput.activation.estimate,'Color','b','LineWidth',0.5); xlim([0,500]);
 	text(200,-0.55,'Model','fontsize',7,'color','b')
-
 	set(get(gca,'xaxis'),'visible','off'); set(get(gca,'yaxis'),'visible','off');
+
 	axes('Position',[0.28,0.25,0.2,0.15]);
 	plot(modeloutput.inactivation.estimate,'Color','b','LineWidth',0.5); xlim([0,500]);
 	set(get(gca,'xaxis'),'visible','off'); set(get(gca,'yaxis'),'visible','off');
@@ -81,9 +80,6 @@ function fig = main
 	mx = max(abs(pre(:)));
 	plot(((1:300)-300)*1e-2,-pre(1:300)/mx,'color','b'); hold on;
 	for idx = 1:25
-		% plot([linspace(0,TSteps(idx),100),TSteps(idx)+[1:T_max]*1e-2], ...
-		% 	-[sum(Xi3(:,OpenPositions,idx)')/mx, ...
-		% 	sum(X3(:,OpenPositions,idx)')/mx],'Color','b','LineWidth',0.5);
 		plot(linspace(idx,idx+5,500),-modeloutput.recovery.estimate(:,idx),'color','b','LineWidth',0.5);
 	end
 	xlim([-3,30]);
@@ -91,48 +87,34 @@ function fig = main
 	set(get(gca,'xaxis'),'visible','off'); set(get(gca,'yaxis'),'visible','off');
 
 
-	load('ephys_SummaryData.mat');
-
 	%  Plot GV and SSI
 	axes('Position',[0.6,0.39,0.35,0.21]);
-		load('E:\Research_Projects\003_Nav15\Experiments\Data\Nav1.5e\activation_analyzed.mat')
+		load('Nav1.5e\activation_analyzed.mat')
 		V = cat(2,T.V_activation{:});
 		G = cat(2,T.G_activation{:});
 		plot(V,G,'.k','MarkerSize',2); hold on;
-		% errorbar(Nav15e.activation(:,1),Nav15e.activation(:,2),Nav15e.activation(:,3),'Color','k','Marker','square','MarkerFaceColor','k','LineWidth',0.75,'LineStyle','none'); hold on;
 		h = plot(modeloutput.activation.V,modeloutput.activation.G,'Color','b','LineWidth',2); drawnow; 
-		% set(h.NodeChildren(1),'LineWidth',0.75);
 		xlim([-130 30]); ylim([0,1]);
 
-		load('E:\Research_Projects\003_Nav15\Experiments\Data\Nav1.5e\inactivation_analyzed.mat')
+		load('Nav1.5e\inactivation_analyzed.mat')
 		V = cat(2,T.V_SSI{:});
 		I = cat(2,T.Ipost_SSI{:});
 		G=1-I.*T.Imax(:)';
 		plot(V,G,'.k','MarkerSize',2); hold on;
-		% errorbar(Nav15e.inactivation(:,1),Nav15e.inactivation(:,2),Nav15e.inactivation(:,3),'Color','k','Marker','v','MarkerFaceColor','k','LineWidth',0.75,'LineStyle','none'); hold on;
 		h1 = plot(modeloutput.inactivation.V,modeloutput.inactivation.I,'Color','b','LineWidth',2); drawnow; 
-		% set(h1.NodeChildren(1),'LineWidth',0.75);
 		xlim([-130 30]); ylim([0,1]);
 		xlabel('Voltage(mV)'); 
 		gcaformat;
 
 	%  Plot recovery curves
 	axes('Position',[0.6,0.08,0.35,0.21]);
-		load('E:\Research_Projects\003_Nav15\Experiments\Data\Nav1.5e\recovery_analyzed.mat')
-	% T_Steps = template.Recovery.Delays;
-	% errorbar(template.Recovery.Delays,template.Recovery.m,template.Recovery.s/sqrt(template.Recovery.N),'Color','k', ...
-	% 'LineWidth',1,'Marker','v','MarkerFaceColor','k','LineStyle','none');
-		t = 1:25;
-		I_WT = cat(2,T.I_recovery{:});
-		% plot(t(:)+0*randn(size(I_WT)),I_WT,'.','color','k','MarkerSize',2); hold on;
-		load('E:\Research_Projects\003_Nav15\Experiments\Data\Nav1.5e\Recovery_Curves.mat')
+		load('Nav1.5e\Recovery_Curves.mat')
 		idcs = [1,2,3,4,7,10,15,20,26:size(a,2)];
 		plot(a(:,idcs),b(:,idcs),'.k','MarkerSize',2)
 		set(gca,'xscale','log')
 		hold on;
 		h1 = plot(modeloutput.recovery.t,modeloutput.recovery.I,'Color','b','LineWidth',2); drawnow;
 		set(gca,'XScale','log');xlim([1 150]);ylim([0,1]);
-		% xlim([1,25])
 		ylim([0,1]);
 		xl = xlabel('Inter-pulse interval (ms)'); 
 		xl.Position = [12.2,-0.22,-1];

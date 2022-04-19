@@ -5,7 +5,7 @@ addpath(genpath(basePath));
 clrs = getColours;
 
 Params = getNav15params(2);
-[Q,OpenPositions,defaultP] = nav15_NB_wDIII(Params);
+[Q,OpenPositions,defaultP] = schemeII(Params);
 WT = simulateprotocols(Q,OpenPositions);
 DI = simualteDI_CN(defaultP);
 DII = simualteDII_CN(defaultP);
@@ -19,7 +19,7 @@ xr = 4.4-0.65;
 yr = 3.2-0.5;
 w = 0.75;
 ax(8) = axes('Position',[0.125,0.5,w,w*yr/R/xr]); 
-buildmodeldiagram_DIII;
+drawschemeII;
 
 w2 = 0.15;
 h2 = 0.125;
@@ -116,7 +116,7 @@ function DI = simualteDI_CN(P)
     P.delta_k = P.delta_k*10;
     P.delta_4k = P.delta_4k*10;
     paramsDI = struct2array(P);
-    [Q,OpenPositions,P_DI] = nav15_NB_wDIII(paramsDI);
+    [Q,OpenPositions,P_DI] = schemeII(paramsDI);
     DI = simulateprotocols(Q,OpenPositions);
 end
 
@@ -126,7 +126,7 @@ function DII = simualteDII_CN(P)
     P.alpha_k = P.alpha_k/10;
     P.beta_k = P.beta_k*10;
     paramsDII = struct2array(P);
-    [Q,OpenPositions,P_DII] = nav15_NB_wDIII(paramsDII);
+    [Q,OpenPositions,P_DII] = schemeII(paramsDII);
     DII = simulateprotocols(Q,OpenPositions);
 end
 
@@ -136,7 +136,7 @@ function DIII = simualteDIII_CN(P)
     P.alpha_3k = P.alpha_3k/5;
     P.beta_3k = P.beta_3k*5;
     paramsDIII = struct2array(P);
-    [Q,OpenPositions,P_DIII] = nav15_NB_wDIII(paramsDIII);
+    [Q,OpenPositions,P_DIII] = schemeII(paramsDIII);
     DIII = simulateprotocols(Q,OpenPositions);
 end
 
@@ -150,6 +150,6 @@ function DIV = simualteDIV_CN(P)
     P.alpha_4ok = P.alpha_4ok/50;
     % P.beta_4ok = P.beta_4ok*5;
     paramsDIV = struct2array(P);
-    [Q,OpenPositions,P_DIV] = nav15_NB_wDIII(paramsDIV);
+    [Q,OpenPositions,P_DIV] = schemeII(paramsDIV);
     DIV = simulateprotocols(Q,OpenPositions);
 end

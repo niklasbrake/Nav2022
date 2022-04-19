@@ -7,8 +7,7 @@ pt2cm = 0.0352778;
 
 fig = figureNB(8.5,7);
 
-clrs = lines(6);
-clrs=clrs([2,3,4,6],:);
+clrs = getColours;
 
 setPanLab = @(x,y,str) labelpanel(x/fig.Position(3),y/fig.Position(4),str);
 
@@ -26,7 +25,7 @@ WT = load(fullfile('mH1','20170311c3','inactivation.mat'));
 WT.Current = inactivationleakcorrection(WT.Voltage,WT.Current,WT.Epochs);
 X = WT.Current(:,WT.Epochs(5)+31:WT.Epochs(5)+480)';
 X(1:4,:) = nan;
-plot(X,'LineWidth',0.5,'color','k');
+plot(X,'LineWidth',0.5,'color',clrs(1,:));
 mX = max(abs(X(:)));
 xlim([1,400]);
 ylim([-1.1,0.2]*mX);
@@ -46,7 +45,7 @@ D1 = load(fullfile('mH1-D1','20180301c6','inactivation.mat'));
 D1.Current = inactivationleakcorrection(D1.Voltage,D1.Current,D1.Epochs);
 X = D1.Current(:,D1.Epochs(5)+31:D1.Epochs(5)+30+400)';
 X(1:4,:) = nan;
-plot(X,'LineWidth',0.5,'color',clrs(1,:));
+plot(X,'LineWidth',0.5,'color',clrs(2,:));
 mX = max(abs(X(:)));
 xlim([1,400]);
 ylim([-1.1,0.2]*mX);
@@ -65,7 +64,7 @@ D2.Current = inactivationleakcorrection(D2.Voltage,D2.Current,D2.Epochs);
 X = D2.Current(:,D2.Epochs(5)+31:D2.Epochs(5)+30+400)';
 mX = max(abs(X(:)));
 X(1:4,:) = nan;
-plot(X,'LineWidth',0.5,'color',clrs(2,:));
+plot(X,'LineWidth',0.5,'color',clrs(3,:));
 xlim([1,400]);
 ylim([-1.1,0.2]*mX);
 ax.XAxis.Visible = 'off';
@@ -82,7 +81,7 @@ D3.Current = inactivationleakcorrection(D3.Voltage,D3.Current,D3.Epochs);
 X = D3.Current(:,D3.Epochs(5):D3.Epochs(5)+430)';
 mX = max(abs(X(:)));
 X(1:4,:) = nan;
-plot(X,'LineWidth',0.5,'color',clrs(3,:));
+plot(X,'LineWidth',0.5,'color',clrs(4,:));
 xlim([1,400]+30);
 ylim([-1.1,0.2]*mX);
 ax.XAxis.Visible = 'off';
@@ -101,7 +100,7 @@ D4.Current = inactivationleakcorrection(D4.Voltage,D4.Current,D4.Epochs);
 X = D4.Current(:,D4.Epochs(5)+15:D4.Epochs(5)+30+400)';
 mX = max(abs(X(:)));
 X(1:8,:) = nan;
-plot(X,'LineWidth',0.5,'color',clrs(4,:));
+plot(X,'LineWidth',0.5,'color',clrs(5,:));
 xlim([1,400]);
 ylim([-1.1,0.2]*mX);
 ax.XAxis.Visible = 'off';
@@ -125,70 +124,72 @@ xlim([-150,-40]); 	xlabel('Test Pulse Potential (mV)')
 ylim([0,1.1]); 		ylabel('Peak Conductance (Norm.)')
 
 
-load(fullfile('mH1','GV_Curves.mat'));
-G = I_I'.*InactFit(:,2)';
-G(:,max(G)>1.5) = [];
-V = mean(I_V);
-eb(1) = errorbar(mean(I_V),mean(G'),stderror(G'),'squarek', ...
-	'Color','k','MarkerFaceColor','k','MarkerSize',5);
-G = G(V<35,:);
-V = V(V<35);
-FT = fitSSIcurve(V,mean(G'));
-xtemp = V;
-ytemp = FT(xtemp);
-plot(xtemp,ytemp,'Color','k');
+load(fullfile('mH1','inactivation_analyzed.mat')); mH1 = T;
+load(fullfile('mH1-D1','inactivation_analyzed.mat')); mH1_D1 = T;
+load(fullfile('mH1-D2','inactivation_analyzed.mat')); mH1_D2 = T;
+load(fullfile('mH1-D3','inactivation_analyzed.mat')); mH1_D3 = T;
+load(fullfile('mH1-D4','inactivation_analyzed.mat')); mH1_D4 = T;
 
-load(fullfile('mH1-D1','GV_Curves.mat'));
-G = I_I'.*InactFit(:,2)';
-G(:,max(G)>1.5) = [];
-V = mean(I_V);
-eb(2) = errorbar(mean(I_V),mean(G'),stderror(G'),'^', ...
-	'Color',clrs(1,:),'MarkerFaceColor',clrs(1,:),'MarkerSize',5);
-G = G(V<35,:);
-V = V(V<35);
-FT = fitSSIcurve(V,mean(G'));
-xtemp = V;
-ytemp = FT(xtemp);
-plot(xtemp,ytemp,'Color',clrs(1,:));
 
-load(fullfile('mH1-D2','GV_Curves.mat'));
-G = I_I'.*InactFit(:,2)';
-G(:,max(G)>1.5) = [];
-V = mean(I_V);
-eb(3) = errorbar(mean(I_V),mean(G'),stderror(G'),'v', ...
-	'Color',clrs(2,:),'MarkerFaceColor',clrs(2,:),'MarkerSize',5);
-G = G(V<35,:);
-V = V(V<35);
-FT = fitSSIcurve(V,mean(G'));
-xtemp = V;
-ytemp = FT(xtemp);
-plot(xtemp,ytemp,'Color',clrs(2,:));
+V = cat(2,mH1.V_SSI{:})';
+G = cat(2,mH1.Ipost_SSI{:})'; G = G./G(:,end);
+t = linspace(min(V(:)),max(V(:)),1e3)';
+for i = 1:size(G,1)
+	FT = fitSSIcurve(V(i,:),G(i,:),struct('v50',-100,'k',-10*sign(G(i,end)),'gmax',1/G(i,end)));
+	G(i,:) = FT.Gmx-G(i,:);
+end
 
-load(fullfile('mH1-D3','GV_Curves.mat'));
-G = I_I'.*InactFit(:,2)';
-G(:,max(G)>1.5) = [];
-V = mean(I_V);
-eb(4) = errorbar(mean(I_V),mean(G'),stderror(G'),'d', ...
-	'Color',clrs(3,:),'MarkerFaceColor',clrs(3,:),'MarkerSize',5);
-G = G(V<35,:);
-V = V(V<35);
-FT = fitSSIcurve(V,mean(G'));
-xtemp = V;
-ytemp = FT(xtemp);
-plot(xtemp,ytemp,'Color',clrs(3,:));
+eb(1) = errorbar(mean(V),mean(G),stderror(G),'^', ...
+	'Color',clrs(1,:),'MarkerFaceColor',clrs(1,:),'MarkerSize',5); hold on;
+FT = fitSSIcurve(V,G,struct('v50',-80,'k',10,'gmax',1));
+plot(t,FT(t),'k','linewidth',1)
 
-load(fullfile('mH1-D4','GV_Curves.mat'));
-G = I_I'.*InactFit(:,2)';
-G(:,max(G)>1.5) = [];
-V = mean(I_V);
-eb(5) = errorbar(mean(I_V),mean(G'),stderror(G'),'o', ...
-	'Color',clrs(4,:),'MarkerFaceColor',clrs(4,:),'MarkerSize',5);
-G = G(V<35,:);
-V = V(V<35);
-FT = fitSSIcurve(V,mean(G'));
-xtemp = V;
-ytemp = FT(xtemp);
-plot(xtemp,ytemp,'Color',clrs(4,:));
+V = cat(2,mH1_D1.V_SSI{:})';
+G = cat(2,mH1_D1.Ipost_SSI{:})'; G = G./G(:,end);
+for i = 1:size(G,1)
+	FT = fitSSIcurve(V(i,:),G(i,:),struct('v50',-100,'k',-10*sign(G(i,end)),'gmax',1/G(i,end)));
+	G(i,:) = FT.Gmx-G(i,:);
+end
+eb(2) = errorbar(mean(V),mean(G),stderror(G),'^', ...
+	'Color',clrs(2,:),'MarkerFaceColor',clrs(2,:),'MarkerSize',5); hold on;
+FT = fitSSIcurve(V,G,struct('v50',-80,'k',10,'gmax',1));
+plot(t,FT(t),'color',clrs(2,:),'linewidth',1)
+
+V = cat(2,mH1_D2.V_SSI{:})';
+G = cat(2,mH1_D2.Ipost_SSI{:})'; G = G./G(:,end);
+for i = 1:size(G,1)
+	FT = fitSSIcurve(V(i,:),G(i,:),struct('v50',-100,'k',-10*sign(G(i,end)),'gmax',1/G(i,end)));
+	G(i,:) = FT.Gmx-G(i,:);
+end
+eb(3) = errorbar(mean(V),mean(G),stderror(G),'^', ...
+	'Color',clrs(3,:),'MarkerFaceColor',clrs(3,:),'MarkerSize',5); hold on;
+FT = fitSSIcurve(V,G,struct('v50',-80,'k',10,'gmax',1));
+plot(t,FT(t),'color',clrs(3,:),'linewidth',1)
+
+V = cat(2,mH1_D3.V_SSI{:})';
+G = cat(2,mH1_D3.Ipost_SSI{:})'; G = G./G(:,end);
+for i = 1:size(G,1)
+	FT = fitSSIcurve(V(i,:),G(i,:),struct('v50',-100,'k',-10*sign(G(i,end)),'gmax',1/G(i,end)));
+	G(i,:) = FT.Gmx-G(i,:);
+end
+eb(4) = errorbar(mean(V),mean(G),stderror(G),'^', ...
+	'Color',clrs(4,:),'MarkerFaceColor',clrs(4,:),'MarkerSize',5); hold on;
+FT = fitSSIcurve(V,G,struct('v50',-80,'k',10,'gmax',1));
+plot(t,FT(t),'color',clrs(4,:),'linewidth',1)
+
+V = cat(2,mH1_D4.V_SSI{:})';
+G = cat(2,mH1_D4.Ipost_SSI{:})'; G = G./G(:,end);
+t = linspace(min(V(:)),max(V(:)),1e3)';
+for i = 1:size(G,1)
+	FT = fitSSIcurve(V(i,:),G(i,:),struct('v50',-100,'k',-10*sign(G(i,end)),'gmax',1/G(i,end)));
+	G(i,:) = FT.Gmx-G(i,:);
+end
+
+eb(5) = errorbar(mean(V),mean(G),stderror(G),'^', ...
+	'Color',clrs(5,:),'MarkerFaceColor',clrs(5,:),'MarkerSize',5); hold on;
+FT = fitSSIcurve(V,G,struct('v50',-80,'k',10,'gmax',1));
+plot(t,FT(t),'color',clrs(5,:),'linewidth',1)
+
 
 set(gca,'xtick',[-140:20:25])
 L = legend(eb,{'Nav1.5','DI-CN','DII-CN','DIII-CN','DIV-CN'},'box','off','FontSize',7, ...

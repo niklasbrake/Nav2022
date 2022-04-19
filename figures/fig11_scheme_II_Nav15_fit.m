@@ -1,8 +1,8 @@
 function fig = main
 
-load('E:\Research_Projects\003_Nav15\Experiments\Data\Nav1.5e\activation_analyzed.mat');
+load('Nav1.5e\activation_analyzed.mat');
 A15e = T;
-load('E:\Research_Projects\003_Nav15\Experiments\Data\mH1\activation_analyzed.mat');
+load('mH1\activation_analyzed.mat');
 A15 = T;
 
 V = cat(2,A15e.V_activation{:});
@@ -27,15 +27,15 @@ subplot(3,2,1);
     text(-90,1.05,'Nav1.5e','FontSize',7,'color','k')
     text(-90,0.9,'Nav1.5','FontSize',7,'color','r')
 
-load('E:\Research_Projects\003_Nav15\Experiments\Data\Nav1.5e\inactivation_analyzed.mat');
+load('Nav1.5e\inactivation_analyzed.mat');
 A15e = T;
-load('E:\Research_Projects\003_Nav15\Experiments\Data\mH1\inactivation_analyzed.mat');
+load('mH1\inactivation_analyzed.mat');
 A15 = T;
 idcs = find(isoutlier(A15.v50_SSI));
 A15(idcs,:) = [];
 
 V = cat(2,A15e.V_SSI{:});
-G = cat(2,A15e.Ipost_SSI{:}); G= 1-G./min(G);
+G = cat(2,A15e.Ipost_SSI{:}); G= 1-G;
 t = linspace(min(V(:)),max(V(:)),1e3)';
 subplot(3,2,3);
 
@@ -45,7 +45,7 @@ subplot(3,2,3);
     
     plot(t,FT(t),'k','linewidth',1)
     V = cat(2,A15.V_SSI{:});
-    G = cat(2,A15.Ipost_SSI{:}); G= 1-G./min(G);
+    G = cat(2,A15.Ipost_SSI{:}); G= 1-G./max(G);
     plot(V,G,'.r','MarkerSize',2); hold on;
     FT = fitSSIcurve(V(V<35),G(V<35),struct('v50',-80,'k',10,'gmax',1));
     plot(t,FT(t),'r','linewidth',1)
@@ -54,9 +54,9 @@ subplot(3,2,3);
     gcaformat;
     ylabel('Inactivation (I/I_{max})')
 
-load('E:\Research_Projects\003_Nav15\Experiments\Data\Nav1.5e\recovery_analyzed.mat');
+load('Nav1.5e\recovery_analyzed_-100mV.mat');
 A15e = T;
-load('E:\Research_Projects\003_Nav15\Experiments\Data\mH1\recovery_analyzed.mat');
+load('mH1\recovery_analyzed.mat');
 A15 = T;
 
 t = linspace(0.01,25,1e3);
@@ -77,16 +77,15 @@ subplot(3,2,5);
     ylabel('Recovery (I_2/I_1)')
 
 
-load('C:\Users\brake\Documents\GitHub\Nav2020\figures\dependencies\data\fittingTemplate');
 defaultParams = getNav15params(2);
 
-[Q,OpenPositions,P] = nav15_NB_wDIII(defaultParams);
+[Q,OpenPositions,P] = schemeII(defaultParams);
 WT15e = simulateprotocols(Q,OpenPositions);
 
 params15 = defaultParams;
 params15(19:20) = 3*params15(19:20);
 
-[Q,OpenPositions] = nav15_NB_wDIII(params15);
+[Q,OpenPositions] = schemeII(params15);
 WT15 = simulateprotocols(Q,OpenPositions);
 
 subplot(3,2,2);

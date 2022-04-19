@@ -11,14 +11,12 @@ function fig = main
     h = 0.37;
     w = xr/yr*h*R;
 	axes('Position',[0.525-w/2,0.63,w,h]); 
-	buildmodeldiagram(true);
+	drawschemeI(true);
 	gcaformat;
-
 
 	pars15 = getNav15params(1);
 	simulateDIICN(pars15);
 	simulateDIVCN(pars15);
-
 	
 	labelpanel(0.1,0.95,'a');
 	labelpanel(0.05,0.59,'b');
@@ -34,14 +32,13 @@ function simulateDIICN(pars15)
 	
 	% Nav1.5 model
 	ax = axes('Position',[0.7,0.42,0.22,0.18]);
-		plotComparison(pars15,@nav15_NB,[1,1,1]*0.3+0.7*clrs(1,:),'square'); 
-		plotComparison(pars15,@nav15minusC1_NB,clrs(3,:),'v'); 
+		plotComparison(pars15,@schemeI,[1,1,1]*0.3+0.7*clrs(1,:),'square'); 
+		plotComparison(pars15,@schemeI_D2CN,clrs(3,:),'v'); 
 		local_format;
 
 	V = linspace(-150,60,100);
 	for i = 1:length(V)
-		% [CSI_WT(i),DIV_WT(i),t_inact_WT(:,i),t_open_WT(:,i)] = computemodelCSI(pars15,@nav15_NB,V(i));
-		[t_inact_DII(:,i),t_open_DII(:,i)] = computemodelCSI(pars15,@nav15minusC1_NB,V(i));
+		[t_inact_DII(:,i),t_open_DII(:,i)] = computemodelCSI(pars15,@schemeI_D2CN,V(i));
 	end
 
 	ax = axes('Position',[0.7,0.1,0.22,0.18]);
@@ -61,19 +58,19 @@ function simulateDIVCN(pars15)
 
 	% Nav1.5 model
 	ax = axes('Position',[0.1,0.42,0.22,0.18]);
-		plotComparison(pars15,@nav15_NB,clrs(1,:),'square'); 
+		plotComparison(pars15,@schemeI,clrs(1,:),'square'); 
 		local_format
 
 	ax = axes('Position',[0.4,0.42,0.22,0.18]);
-		plotComparison(pars15,@nav15_NB,[1,1,1]*0.3+0.7*clrs(1,:),'square'); 
-		pars15_DIVCN = lowCSIparams(pars15,@nav15_NB);
-		plotComparison(pars15_DIVCN,@nav15_NB,clrs(5,:),'v'); 
+		plotComparison(pars15,@schemeI,[1,1,1]*0.3+0.7*clrs(1,:),'square'); 
+		pars15_DIVCN = lowCSIparams(pars15,@schemeI);
+		plotComparison(pars15_DIVCN,@schemeI,clrs(5,:),'v'); 
 		local_format
 
 	V = linspace(-150,60,100);
 	for i = 1:length(V)
-		[t_inact_WT(:,i),t_open_WT(:,i)] = computemodelCSI(pars15,@nav15_NB,V(i));
-		[t_inact_DIV(:,i),t_open_DIV(:,i)] = computemodelCSI(pars15_DIVCN,@nav15_NB,V(i));
+		[t_inact_WT(:,i),t_open_WT(:,i)] = computemodelCSI(pars15,@schemeI,V(i));
+		[t_inact_DIV(:,i),t_open_DIV(:,i)] = computemodelCSI(pars15_DIVCN,@schemeI,V(i));
 	end
 
 	ax = axes('Position',[0.1,0.1,0.22,0.18]);
@@ -142,4 +139,3 @@ function local_format
 	end
 	set(gca,'xtick',[-120:60:60]);
 	xlabel('Voltage (mV)');
-	% set(gca,'xticklabel',{'-100','0 mV'});

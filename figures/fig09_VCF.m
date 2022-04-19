@@ -1,4 +1,4 @@
-function fig = main
+% function fig = main
 
 warning('off','curvefit:prepareFittingData:removingNaNAndInf')
 basePath = fileparts(fileparts(mfilename('fullpath')));
@@ -15,7 +15,18 @@ baseline(3) = 1.8307;
 D(4) = load(fullfile('VCF','D4_20180514c5.mat'));
 baseline(4) = 2.0698;
 
-WT = load('ephys_SummaryData.mat');
+load('Nav1.5e\inactivation_analyzed.mat'); 	WT.inactivation = T;
+load('Nav1.5e\activation_analyzed.mat'); 	WT.activation = T;
+
+V = cat(2,WT.activation.V_activation{:})'; V = V(:,1:32);
+G = cat(2,WT.activation.G_activation{:})'; G = G(:,1:32);
+FB_A = fitboltzman(V,G);
+V_A = mean(V); M_A = mean(G); S_A = stderror(G);
+
+V = cat(2,WT.inactivation.V_SSI{:})'; V = V(:,5:32);
+G = 1-cat(2,WT.inactivation.Ipost_SSI{:})'; G = G(:,5:32);
+FB_I = fitboltzman(V,G,struct('v50',-80,'k',10));
+V_I = mean(V); M_I = mean(G); S_I = stderror(G);
 
 fig = figureNB(8.5,15.25);
 figh = fig.Position(4);
@@ -30,20 +41,19 @@ ax(3).Position = [4.7,figh-9+0.75,3,2];
 ax(4) = axes('units','Centimeters','fontsize',7,'LineWidth',1,'box','off','tickdir','out');
 ax(4).Position = [4.7,figh-12+0.75,3,2];
 
+
 for i = 1:4
 	axes(ax(i)); hold on;
-	FB = fitboltzman(WT.Nav15e.activation(:,1),WT.Nav15e.activation(:,2),struct('v50',-50,'k',-5));
-	EB(2) = errorbar(WT.Nav15e.activation(:,1),WT.Nav15e.activation(:,2),WT.Nav15e.activation(:,3),'LineWidth',0.25,'LineStyle','none','Marker','v','MarkerSize',3,'color',ones(1,3)*0.4+0.6*[1,0,0]); hold on;
+	EB(2) = errorbar(V_A,M_A,S_A,'LineWidth',0.25,'LineStyle','none','Marker','v','MarkerSize',3,'color',ones(1,3)*0.4+0.6*[1,0,0]); hold on;
 	EB(2).MarkerFaceColor = EB(2).Color;
-	plot(vF(1):vF(end),FB(vF(1):vF(end)),'Color',EB(2).Color);
-	FB = fitboltzman(vF,F(:,i),struct('v50',-50,'k',-5));
+	plot(vF(1):vF(end),FB_A(vF(1):vF(end)),'Color',EB(2).Color);
+	FB_F = fitboltzman(vF,F(:,i),struct('v50',-50,'k',-5));
 	EB(1) = errorbar(vF,F(:,i),sF(:,i),'LineWidth',0.25,'LineStyle','none','Marker','^','MarkerSize',3,'color',[0,0.9,0]); hold on;
 	EB(1).MarkerFaceColor = EB(1).Color;
-	plot(vF(1):vF(end),FB(vF(1):vF(end)),'Color',EB(1).Color);
-	FB = fitboltzman(WT.Nav15e.inactivation(3:end,1),WT.Nav15e.inactivation(3:end,2),struct('v50',-100,'k',5));
-	EB(3) = errorbar(WT.Nav15e.inactivation(3:end,1),WT.Nav15e.inactivation(3:end,2),WT.Nav15e.inactivation(3:end,3),'LineWidth',0.25,'LineStyle','none','Marker','o','MarkerSize',3,'color',ones(1,3)*0.4+0.6*[0,0.3,1]); hold on;
+	plot(vF(1):vF(end),FB_F(vF(1):vF(end)),'Color',EB(1).Color);
+	EB(3) = errorbar(V_I,M_I,S_I,'LineWidth',0.25,'LineStyle','none','Marker','o','MarkerSize',3,'color',ones(1,3)*0.4+0.6*[0,0.3,1]); hold on;
 	EB(3).MarkerFaceColor = EB(3).Color;
-	plot(vF(1):vF(end),FB(vF(1):vF(end)),'Color',EB(3).Color);
+	plot(vF(1):vF(end),FB_I(vF(1):vF(end)),'Color',EB(3).Color);
 	xlim([-200 50]);
 	ylim([0,1.2]);
 	if(i==4)
@@ -56,11 +66,6 @@ for i = 1:4
 		bmp = FB2(vF(1):vF(end));
 		bmp = bmp(:)/max(bmp(:))*(max(F(:,3)-1));
 		plot(vF(1):vF(end),FB(vF(1):vF(end))+bmp,'--k');
-		% FBfitboltzman FitBoltzmanCurve2(WT.minusD4.inactivation(3:end,1),WT.minusD4.inactivation(3:end,2),struct('v50',-100,'k',5));
-		% EB(4) = errorbar(WT.minusD4.inactivation(3:end,1),WT.minusD4.inactivation(3:end,2),WT.minusD4.inactivation(3:end,3),'LineWidth',0.25,'LineStyle','none','Marker','^','MarkerSize',3); hold on;
-		% EB(4).Color = EB(3).Color*0.6+(ones(1,3)-0.6);
-		% EB(4).MarkerFaceColor = EB(4).Color;
-		% plot(vF(1):vF(end),FB(vF(1):vF(end)),'Color',EB(4).Color);
 	end
 
 end
@@ -126,7 +131,14 @@ clrs = lines(6);
 clrs=clrs([2,3,4,6],:);
 mrks = {'^','v','d','o'};
 
-iD4 = WT.minusD4.inactivation;
+
+load('Nav1.5e-D4\inactivation_analyzed.mat'); 	D4CN = T;
+V = cat(2,D4CN.V_SSI{:})';
+G = 1-cat(2,D4CN.Ipost_SSI{:})';
+FB_I = fitboltzman(V,G,struct('v50',-80,'k',10));
+V_I = round(mean(V)); M_I = mean(G); S_I = stderror(G);
+iD4 = [V_I(:),M_I(:),S_I(:)];
+
 [V,iV1,iV2] = intersect(vF,iD4(:,1));
 FF = F(iV1,3);
 FF(FF>1.05) = nan;
@@ -150,11 +162,10 @@ ax(5).Position = [4.7,figh-15+0.7,2,2];
 
 ax(6) = axes('units','Centimeters','fontsize',7,'LineWidth',1,'box','off','tickdir','out'); hold on;
 ax(6).Position = [1.15,figh-15+0.7,2.75,2];
-	FB = fitboltzman(WT.minusD4.inactivation(:,1),WT.minusD4.inactivation(:,2),struct('v50',-100,'k',5));
-	EB(4) = errorbar(WT.minusD4.inactivation(:,1),WT.minusD4.inactivation(:,2),WT.minusD4.inactivation(:,3),'LineWidth',0.25,'LineStyle','none','Marker','o','MarkerSize',3); hold on;
+	EB(4) = errorbar(iD4(:,1),iD4(:,2),iD4(:,3),'LineWidth',0.25,'LineStyle','none','Marker','o','MarkerSize',3); hold on;
 	EB(4).Color = EB(3).Color*0.6+(ones(1,3)-0.6);
 	EB(4).MarkerFaceColor = EB(4).Color;
-	plot(vF(1):vF(end),FB(vF(1):vF(end)),'Color',EB(4).Color);
+	plot(vF(1):vF(end),FB_I(vF(1):vF(end)),'Color',EB(4).Color);
 	for i = 1:3
 		FB = fitboltzman(vF,F(:,i),struct('v50',-50,'k',-5));
 		EB(i) = errorbar(vF,F(:,i),sF(:,i),'LineWidth',0.25,'LineStyle','none','Marker',mrks{i},'MarkerSize',3,'color',clrs(i,:)); hold on;

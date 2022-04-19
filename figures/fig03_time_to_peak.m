@@ -92,7 +92,7 @@ function plotmodelpredictions
 
 
 function [actEst,V,I_A] = simActivation(pars15,Fs)
-	[Q,OpenPositions,P] = nav15_NB(pars15);
+	[Q,OpenPositions,P] = schemeI(pars15);
 	N = length(Q(0));
 	dX_base = Q(-100*1e-3); % Get transition matrix for V = -100 mV
 	temp = expsolver(dX_base,[1:100]*1e-3,[1 zeros(1,N-1)])'; % Integrate for 100 ms
@@ -119,7 +119,6 @@ function [actEst,V,I_A] = simActivation(pars15,Fs)
 
 function plotdata
 
-	load('ephys_SummaryData.mat');
 	load('TimeToPeak.mat');
 
 	D1 = load(fullfile('Nav1.5e-D1','20180307c1','activation.mat'));
@@ -183,20 +182,18 @@ function plotdata
 	%% Find voltages where normalized conductance is greater than 0.05 %%
 	% (WT has larger currents, so use 0.025)
 	% (DIV-CN has smaller currents, so use 0.1)
-	vThresh = Nav15e.activation(Nav15e.activation(:,2)>0.025,1);
-	idcs.WT = find(V>=vThresh(1));
 
-	vThresh = minusD1.activation(minusD1.activation(:,2)>0.05,1);
-	idcs.D1 = find(V>=vThresh(1));
+	load(fullfile('Nav1.5e','activation_analyzed.mat')); Nav15e = T;
+	load(fullfile('Nav1.5e-D1','activation_analyzed.mat')); Nav15e_D1 = T;
+	load(fullfile('Nav1.5e-D2','activation_analyzed.mat')); Nav15e_D2 = T;
+	load(fullfile('Nav1.5e-D3','activation_analyzed.mat')); Nav15e_D3 = T;
+	load(fullfile('Nav1.5e-D4','activation_analyzed.mat')); Nav15e_D4 = T;
 
-	vThresh = minusD2.activation(minusD2.activation(:,2)>0.05,1);
-	idcs.D2 = find(V>=vThresh(1));
-	
-	vThresh = minusD3.activation(minusD3.activation(:,2)>0.05,1);
-	idcs.D3 = find(V>=vThresh(1));
-	
-	vThresh = minusD4.activation(minusD4.activation(:,2)>0.1,1);
-	idcs.D4 = find(V>=vThresh(1));
+	idcs.WT = find(mean(cat(2,Nav15e.G_activation{:}),2)>0.025); idcs.WT(idcs.WT>=35) = [];
+	idcs.D1 = find(mean(cat(2,Nav15e_D1.G_activation{:}),2)>0.05); idcs.D1(idcs.D1>=35) = [];
+	idcs.D2 = find(mean(cat(2,Nav15e_D2.G_activation{:}),2)>0.05); idcs.D2(idcs.D2>=35) = [];
+	idcs.D3 = find(mean(cat(2,Nav15e_D3.G_activation{:}),2)>0.05); idcs.D3(idcs.D3>=35) = [];
+	idcs.D4 = find(mean(cat(2,Nav15e_D4.G_activation{:}),2)>0.1); idcs.D4(idcs.D4>=35) = [];
 
 	fn = fieldnames(idcs);
 	slot = [nan,2,3,5,6];
@@ -231,8 +228,7 @@ function plotdata
 function plotsensitivityanalysis
 
 	% output = parametersensitivity;
-	% save('C:\Users\brake\Documents\GitHub\Nav2022\data\modelling\2_parameter_sensitivity_analysis.mat','output')
-	load('C:\Users\brake\Documents\GitHub\Nav2022\data\modelling\2_parameter_sensitivity_analysis.mat');
+	load('2_parameter_sensitivity_analysis.mat');
 
 	defaultIdx1 = find(output.parameter1.foldChange==0);
 	defaultIdx2 = find(output.parameter2.foldChange==0);
@@ -242,10 +238,7 @@ function plotsensitivityanalysis
 	Bpost = linspace(output.parameter2.foldChange(1),output.parameter2.foldChange(end),900);
 	[Y,X] = meshgrid(Bpost,Apost);
 	refinedV50 = interp2(Ypre,Xpre,output.v50-output.v50(defaultIdx1,defaultIdx2),Y,X);
-	% refinedt0 = interp2(Ypre,Xpre,log10(output.t0)-log10(output.t0(defaultIdx1,defaultIdx2)),Y,X);
-	% refinedt0 = interp2(Ypre,Xpre,output.t0-output.t0(defaultIdx1,defaultIdx2),Y,X);
-	M = 1.2555;
-	% M = 1.5;
+	M = 1.2555; % Offset for logrithmic color map
 	refinedt0 = interp2(Ypre,Xpre,log10((output.t0-output.t0(defaultIdx1,defaultIdx2))+M),Y,X);
 
 	ax1 = axes('units','centimeters');
@@ -287,10 +280,8 @@ function plotsensitivityanalysis
 	    C.Label.Position = [4.2e-5,3,0];
 	    C.Position = [3.75,7.75,2.1,0.17];
 	    gcaformat;
-	    % C.Ticks = [log10(-1+2),log10(0+2),log10(1+2),log10(10+2),log10(100+2)];
 	    C.Ticks = [log10(M+[-1:0.1:-0.1]),log10(M+[0:9]),log10(M+[10:10:100])];
 	    C.TickLabels = {-1,'','','','','','','','','',0,'','','','','','','','','',10,'','','','','','','','',100};
-		% CA = [min(refinedt0(:)),log10(100+M)];
 		CA = [min(refinedt0(:)),log10(100+M)];
 		caxis(CA);
 

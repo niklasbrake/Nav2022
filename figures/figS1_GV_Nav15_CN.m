@@ -7,8 +7,7 @@ pt2cm = 0.0352778;
 
 fig = figureNB(8.5,7);
 
-clrs = lines(6);
-clrs=clrs([2,3,4,6],:);
+clrs = getColours;
 
 setPanLab = @(x,y,str) labelpanel(x/fig.Position(3),y/fig.Position(4),str);
 
@@ -33,7 +32,7 @@ WT = load(fullfile('mH1','20170311c3','activation.mat'));
 	FT = fitGVcurve(V,M.*sig/max(M(:)));
 	X = X(:,find(V<FT.ERev-5));
 	mX = max(abs(X(:)));
-plot(X(:,1:2:end),'LineWidth',0.5,'color','k');
+plot(X(:,1:2:end),'LineWidth',0.5,'color',clrs(1,:));
 xlim([1,500]);
 ylim([-1.1,0.2]*mX);
 h=title('Nav1.5','FontSize',7,'FontWeight','normal'); yl = get(gca,'ylim');
@@ -56,7 +55,7 @@ set(get(gca,'yaxis'),'visible','off');
 	FT = fitGVcurve(V,M.*sig/max(M(:)));
 	X = X(:,find(V<FT.ERev-5));
 	mX = max(abs(X(:)));
-plot(X(:,1:2:end),'LineWidth',0.5,'color',clrs(1,:));
+plot(X(:,1:2:end),'LineWidth',0.5,'color',clrs(2,:));
 xlim([1,750]);
 ylim([-1.1,0.2]*mX);
 h=title('DI-CN','FontSize',7,'FontWeight','normal'); yl = get(gca,'ylim');
@@ -80,7 +79,7 @@ set(get(gca,'yaxis'),'visible','off');
 	FT = fitGVcurve(V,M.*sig/max(M(:)));
 	X = X(:,find(V<FT.ERev-5));
 	mX = max(abs(X(:)));
-plot(X(:,1:2:end),'LineWidth',0.5,'color',clrs(2,:));
+plot(X(:,1:2:end),'LineWidth',0.5,'color',clrs(3,:));
 xlim([1,500]);
 ylim([-1.1,0.2]*mX);
 h=title('DII-CN','FontSize',7,'FontWeight','normal'); yl = get(gca,'ylim');
@@ -103,7 +102,7 @@ set(get(gca,'yaxis'),'visible','off');
 	FT = fitGVcurve(V,M.*sig/max(M(:)));
 	X = X(:,find(V<FT.ERev-5));
 	mX = max(abs(X(:)));
-plot(X(:,1:2:end),'LineWidth',0.5,'color',clrs(3,:));
+plot(X(:,1:2:end),'LineWidth',0.5,'color',clrs(4,:));
 xlim([1,500]);
 ylim([-1.1,0.2]*mX);
 h=title('DIII-CN','FontSize',7,'FontWeight','normal'); yl = get(gca,'ylim');
@@ -127,7 +126,7 @@ set(get(gca,'yaxis'),'visible','off');
 	FT = fitGVcurve(V,M.*sig/max(M(:)));
 	X = X(:,find(V<50));
 	mX = max(abs(X(:)));
-plot(X(:,1:2:end),'LineWidth',0.5,'color',clrs(4,:));
+plot(X(:,1:2:end),'LineWidth',0.5,'color',clrs(5,:));
 xlim([1,500]+25);
 ylim([-1.1,0.2]*mX);
 h=title('DIV-CN','FontSize',7,'FontWeight','normal'); yl = get(gca,'ylim');
@@ -151,67 +150,51 @@ xlim([-110,35]); 	xlabel('Test Pulse Potential (mV)')
 ylim([0,1.1]); 		ylabel('Peak Conductance (Norm.)')
 
 
-load(fullfile('mH1','GV_Curves.mat'));
-G = 0.95*A_I'./(0.5+A_V'-ActFit(:,1)')./ActFit(:,2)';
-V = mean(A_V);
-eb(1) = errorbar(mean(A_V),mean(G'),stderror(G'),'squarek', ...
-	'Color','k','MarkerFaceColor','k','MarkerSize',5);
-G = G(V<35,:);
-V = V(V<35);
-FT = fitboltzman(V,mean(G'));
-xtemp = V;
-ytemp = FT(xtemp);
-plot(xtemp,ytemp,'Color','k');
+load(fullfile('mH1','activation_analyzed.mat')); mH1 = T;
+load(fullfile('mH1-D1','activation_analyzed.mat')); mH1_D1 = T;
+load(fullfile('mH1-D2','activation_analyzed.mat')); mH1_D2 = T;
+load(fullfile('mH1-D3','activation_analyzed.mat')); mH1_D3 = T;
+load(fullfile('mH1-D4','activation_analyzed.mat')); mH1_D4 = T;
 
-load(fullfile('mH1-D1','GV_Curves.mat'));
-G = 0.9*A_I'./(5+A_V'-ActFit(:,1)')./ActFit(:,2)';
-V = mean(A_V);
-eb(2) = errorbar(mean(A_V),mean(G'),stderror(G'),'^', ...
+A_V = cat(2,mH1.V_activation{:})';
+G = cat(2,mH1.G_activation{:})';
+t = linspace(min(V(:)),max(V(:)),1e3)';
+eb(1) = errorbar(mean(A_V),mean(G),stderror(G),'squarek', ...
 	'Color',clrs(1,:),'MarkerFaceColor',clrs(1,:),'MarkerSize',5);
-G = G(V<35,:);
-V = V(V<35);
-FT = fitboltzman(V,mean(G'));
-xtemp = V;
-ytemp = FT(xtemp);
-plot(xtemp,ytemp,'Color',clrs(1,:));
+FT = fitboltzman(V(V<35),mean(G(:,V<35)));
+plot(t,FT(t),'Color',clrs(1,:));
 
-load(fullfile('mH1-D2','GV_Curves.mat'));
-G = A_I'./(A_V'-ActFit(:,1)')./ActFit(:,2)';
-V = mean(A_V);
-eb(3) = errorbar(mean(A_V),mean(G'),stderror(G'),'v', ...
+A_V = cat(2,mH1_D1.V_activation{:})';
+G = cat(2,mH1_D1.G_activation{:})';
+t = linspace(min(V(:)),max(V(:)),1e3)';
+eb(2) = errorbar(mean(A_V),mean(G),stderror(G),'squarek', ...
 	'Color',clrs(2,:),'MarkerFaceColor',clrs(2,:),'MarkerSize',5);
-G = G(V<35,:);
-V = V(V<35);
-FT = fitboltzman(V,mean(G'));
-xtemp = V;
-ytemp = FT(xtemp);
-plot(xtemp,ytemp,'Color',clrs(2,:));
+FT = fitboltzman(V(V<35),mean(G(:,V<35)));
+plot(t,FT(t),'Color',clrs(2,:));
 
-load(fullfile('mH1-D3','GV_Curves.mat'));
-ActFit(5,:) = []; A_I(5,:) = []; A_V(5,:) = [];
-ActFit(10,:) = []; A_I(10,:) = []; A_V(10,:) = [];
-G = A_I'./(A_V'-ActFit(:,1)')./ActFit(:,2)';
-V = mean(A_V);
-eb(4) = errorbar(mean(A_V),mean(G'),stderror(G'),'d', ...
+A_V = cat(2,mH1_D2.V_activation{:})';
+G = cat(2,mH1_D2.G_activation{:})';
+t = linspace(min(V(:)),max(V(:)),1e3)';
+eb(3) = errorbar(mean(A_V),mean(G),stderror(G),'squarek', ...
 	'Color',clrs(3,:),'MarkerFaceColor',clrs(3,:),'MarkerSize',5);
-G = G(V<35,:);
-V = V(V<35);
-FT = fitboltzman(V,mean(G'));
-xtemp = V;
-ytemp = FT(xtemp);
-plot(xtemp,ytemp,'Color',clrs(3,:));
+FT = fitboltzman(V(V<35),mean(G(:,V<35)));
+plot(t,FT(t),'Color',clrs(3,:));
 
-load(fullfile('mH1-D4','GV_Curves.mat'));
-G = A_I'./(A_V'-ActFit(:,1)')./ActFit(:,2)';
-V = mean(A_V);
-eb(5) = errorbar(mean(A_V),mean(G'),stderror(G'),'o', ...
+A_V = cat(2,mH1_D3.V_activation{:})';
+G = cat(2,mH1_D3.G_activation{:})';
+t = linspace(min(V(:)),max(V(:)),1e3)';
+eb(4) = errorbar(mean(A_V),mean(G),stderror(G),'squarek', ...
 	'Color',clrs(4,:),'MarkerFaceColor',clrs(4,:),'MarkerSize',5);
-G = G(V<35,:);
-V = V(V<35);
-FT = fitboltzman(V,mean(G'));
-xtemp = V;
-ytemp = FT(xtemp);
-plot(xtemp,ytemp,'Color',clrs(4,:));
+FT = fitboltzman(V(V<35),mean(G(:,V<35)));
+plot(t,FT(t),'Color',clrs(4,:));
+
+A_V = cat(2,mH1_D4.V_activation{:})';
+G = cat(2,mH1_D4.G_activation{:})';
+t = linspace(min(V(:)),max(V(:)),1e3)';
+eb(5) = errorbar(mean(A_V),mean(G),stderror(G),'squarek', ...
+	'Color',clrs(5,:),'MarkerFaceColor',clrs(5,:),'MarkerSize',5);
+FT = fitboltzman(V(V<35),mean(G(:,V<35)));
+plot(t,FT(t),'Color',clrs(5,:));
 
 set(gca,'xtick',[-100:25:25])
 L = legend(eb,{'Nav1.5','DI-CN','DII-CN','DIII-CN','DIV-CN'},'box','off','FontSize',7, ...
