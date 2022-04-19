@@ -5,7 +5,7 @@ In this repository is the code associated with the following paper:
 
 Preprint: https://doi.org/10.1101/2021.02.25.432706
 
-The functions in the folder **figures** will generate every figure presented in the manuscript. All the data necessary to generate these figures are included in the folder **data**. For raw data, please contact the corresponding author (Dr. Derek Bowie).
+The functions in the folder ***figures*** will generate every figure presented in the manuscript. All the data necessary to generate these figures are included in the folder ***data***. For raw data, please contact the corresponding author (Dr. Derek Bowie).
 
 ## Acknowledgements
 I completed the work for this project during my PhD under the supervision of [Dr. Anmar Khadra](http://www.medicine.mcgill.ca/physio/khadralab/) and in collaboration with [Dr. Derek Bowie](http://www.medicine.mcgill.ca/pharma/dbowielab/) at McGill Univeristy. The electrophysiology data used for fitting was collected by Adamo Mancino, who at the time was a master's student in the Bowie lab. Figure 3 of the paper presents voltage-clamp fluormetry data, which was collected by Adamo Mancino and Yuhao Yan while visting the lab of Dr. Yoshihiro Kubo at the National Institute for Physiological Sciences in Japan.
