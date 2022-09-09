@@ -1,9 +1,7 @@
 ## What is this?
 In this repository is the code associated with the following paper: 
 
-Brake N, Mancino M, Yan Y, Shimomura S, Kubo Y, Khadra A and Bowie D (2022). "Closed-state inactivation of cardiac, skeletal, and neuronal sodium channels is isoform specific." ***J. Gen Physiol*** **154** (7)
-
-Preprint: https://doi.org/10.1101/2021.02.25.432706
+Brake N, Mancino M, Yan Y, Shimomura S, Kubo Y, Khadra A and Bowie D (2022). "Closed-state inactivation of cardiac, skeletal, and neuronal sodium channels is isoform specific." ***J. Gen Physiol*** **154** (7). https://doi.org/10.1085/jgp.202112921.
 
 The functions in the folder ***figures*** will generate every figure presented in the manuscript. All the data necessary to generate these figures are included in the folder ***data***. For raw data, please contact the corresponding author (Dr. Derek Bowie).
 
